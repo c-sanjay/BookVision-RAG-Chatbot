@@ -1,91 +1,184 @@
-# BOOKVISION CHATBOT: CONVERSATION IMAGE BASED Q-A FOR LITERARY WORKS
+# 📚✨ BOOKVISION CHATBOT: CONVERSATION IMAGE BASED Q-A FOR LITERARY WORKS
+
+<p align="center">
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=24&pause=1200&color=8A2BE2&center=true&vCenter=true&width=900&lines=AI+Powered+Book+Understanding;Image+%2B+PDF+Based+Q%26A;Retrieval+Augmented+Generation+Chatbot" />
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/RAG-Enabled-8A2BE2?style=for-the-badge&logo=openai"/>
+  <img src="https://img.shields.io/badge/FAISS-Vector%20Search-orange?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/OCR-Tesseract-blue?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/LLM-Powered-success?style=for-the-badge"/>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.8+-blue?logo=python"/>
+  <img src="https://img.shields.io/badge/FastAPI-Backend-success?logo=fastapi"/>
+  <img src="https://img.shields.io/badge/Streamlit-UI-red?logo=streamlit"/>
+  <img src="https://img.shields.io/badge/OpenRouter-LLM-purple"/>
+</p>
+
+---
+
 ## BookVision RAG Chatbot
 
-BookVision RAG is an advanced Retrieval-Augmented Generation (RAG) chatbot system designed to revolutionize document understanding and question-answering. It enables users to upload PDF documents and images, which are then indexed and made searchable through an intelligent AI-powered interface that can answer questions about the content with page-level citations and source attribution.
+<p align="center">
+  <img src="https://img.shields.io/badge/RAG-Architecture-animated?style=flat-square"/>
+  <img src="https://img.shields.io/badge/Document-AI-blueviolet?style=flat-square"/>
+</p>
+
+BookVision RAG is an **advanced Retrieval-Augmented Generation (RAG) chatbot system** designed to revolutionize **document understanding and question-answering**.
+It enables users to upload **PDF documents and images**, which are indexed and made searchable through an intelligent AI-powered interface that answers questions with **page-level citations and source attribution**.
+
+---
 
 ## About
-BookVision RAG leverages cutting-edge natural language processing and vector search technologies to create a seamless document interaction experience. Traditional document management systems require users to manually search through extensive text, making information retrieval time-consuming and inefficient. This project addresses these challenges by implementing a sophisticated RAG (Retrieval-Augmented Generation) pipeline that combines semantic search with large language models to provide accurate, context-aware answers from uploaded documents.
 
-The system processes PDFs and images through OCR, extracts and chunks text intelligently, generates semantic embeddings using state-of-the-art transformer models, and stores them in a FAISS vector database for fast similarity search. When users ask questions, the system retrieves the most relevant document passages and uses an LLM to generate coherent answers with proper citations. This approach ensures high accuracy while maintaining transparency through source attribution and page references.
+<p align="center">
+  <img src="https://img.shields.io/badge/Semantic-Search-brightgreen"/>
+  <img src="https://img.shields.io/badge/Vector-Embeddings-orange"/>
+  <img src="https://img.shields.io/badge/OCR-Enabled-blue"/>
+</p>
+
+BookVision RAG leverages **modern NLP, OCR, and vector search technologies** to deliver a seamless document interaction experience.
+
+📌 **Core Capabilities**
+
+* AI-powered semantic understanding of documents
+* Intelligent text chunking and embedding
+* Transparent citation-based answers
+* Scalable vector search using FAISS
+
+This ensures **accuracy, explainability, and trust** in AI-generated responses.
+
+---
 
 ## Features
 
-- **Advanced RAG Architecture**: Implements Retrieval-Augmented Generation with FAISS vector search and sentence transformers for semantic document understanding.
-- **Multi-Format Support**: Processes both PDF documents and images (PNG, JPG, JPEG, TIFF, BMP) with OCR capabilities using Tesseract.
-- **Fast Semantic Search**: Utilizes FAISS (Facebook AI Similarity Search) for efficient vector similarity search with persistent storage.
-- **Intelligent Text Chunking**: Sentence-aware chunking strategy that preserves context and filters noise for optimal retrieval quality.
-- **Conversation Context**: Maintains conversation history to enable contextual follow-up questions and coherent multi-turn dialogues.
-- **Page-Level Citations**: Provides accurate page references for all answers, enabling users to verify information in the source document.
-- **Page Preview**: Displays actual page images from PDFs alongside search results for visual verification.
-- **Summary Generation**: Generates concise summaries of documents using AI-powered text summarization.
-- **Redis Caching**: Implements intelligent caching system for faster response times and reduced API costs.
-- **Background Processing**: Supports asynchronous processing for large documents with real-time progress tracking.
-- **Modern Web Interface**: Beautiful Streamlit-based UI with chat interface, statistics dashboard, and real-time feedback.
-- **RESTful API**: FastAPI backend with comprehensive endpoints for integration with other systems.
+<p align="center">
+  <img src="https://img.shields.io/badge/Features-AI%20Powered-blueviolet?style=for-the-badge"/>
+</p>
+
+* 🧠 **Advanced RAG Architecture**
+* 📄 **Multi-Format Support (PDF + Images)**
+* 🔍 **Fast Semantic Search with FAISS**
+* ✂️ **Intelligent Sentence-Aware Chunking**
+* 💬 **Conversation Context Memory**
+* 📌 **Page-Level Citations**
+* 🖼️ **Page Preview for Verification**
+* 📝 **AI-Based Summary Generation**
+* ⚡ **Redis Caching for Fast Responses**
+* 🔄 **Asynchronous Background Processing**
+* 🌐 **FastAPI RESTful Backend**
+* 🎨 **Modern Streamlit UI**
+
+---
 
 ## Requirements
 
-* **Operating System**: Requires a 64-bit OS (Windows 10/11 or Ubuntu 18.04+) for compatibility with machine learning frameworks and dependencies.
-* **Development Environment**: Python 3.8 or later is necessary for running the BookVision RAG system.
-* **Vector Search Framework**: FAISS (Facebook AI Similarity Search) for efficient similarity search and vector storage.
-* **Embedding Models**: Sentence Transformers library with pre-trained models (default: all-MiniLM-L6-v2) for generating semantic embeddings.
-* **LLM Integration**: OpenRouter API access for large language model inference (supports multiple models including GPT-4, Claude, etc.).
-* **Image Processing**: PyMuPDF (fitz) for PDF processing and Pillow for image manipulation.
-* **OCR Capabilities**: Tesseract OCR engine for extracting text from images and scanned documents.
-* **Web Framework**: FastAPI for RESTful API backend and Streamlit for the user interface.
-* **Caching System**: Redis (optional) for query result caching, with in-memory fallback support.
-* **Version Control**: Implementation of Git for collaborative development and effective code management.
-* **IDE**: Use of VSCode or any modern Python IDE for coding, debugging, and development.
-* **Additional Dependencies**: Includes numpy, requests, python-dotenv, aiofiles, uvicorn, and other packages as specified in requirements.txt.
+<p align="center">
+  <img src="https://img.shields.io/badge/Requirements-System%20Ready-success?style=for-the-badge"/>
+</p>
+
+* 💻 **64-bit OS** (Windows 10/11, Ubuntu 18.04+)
+* 🐍 **Python 3.8+**
+* 🔍 **FAISS Vector Database**
+* 🧠 **Sentence Transformers (MiniLM)**
+* 🤖 **OpenRouter API for LLMs**
+* 🖼️ **PyMuPDF & Pillow**
+* 🔠 **Tesseract OCR**
+* 🌐 **FastAPI & Streamlit**
+* ⚡ **Redis (Optional)**
+* 🛠️ **Git & VS Code**
+
+---
 
 ## System Architecture
 
-<img width="1024" height="1024" alt="Gemini_Generated_Image_xkrquixkrquixkrq" src="https://github.com/user-attachments/assets/3a3aab4f-1000-4d76-9406-090ad48d1c85" />
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/3a3aab4f-1000-4d76-9406-090ad48d1c85" width="85%"/>
+</p>
 
-The system architecture follows a multi-stage pipeline:
+### Processing Pipeline
 
-1. **Document Upload & Preprocessing**: Users upload PDFs or images through the Streamlit UI, which are received by the FastAPI backend.
-2. **Text Extraction**: PDFs are processed using PyMuPDF to extract text and page images, while images undergo OCR via Tesseract.
-3. **Text Chunking**: Extracted text is intelligently chunked using sentence-aware algorithms to preserve semantic meaning.
-4. **Embedding Generation**: Text chunks are converted to vector embeddings using Sentence Transformers (384-dimensional vectors by default).
-5. **Vector Storage**: Embeddings are stored in FAISS index with metadata (book_id, page numbers, chunk text) for fast retrieval.
-6. **Query Processing**: User questions are embedded and searched against the FAISS index using cosine similarity.
-7. **Context Retrieval**: Top-k most relevant chunks are retrieved with their metadata and page references.
-8. **Answer Generation**: Retrieved context is sent to the LLM (via OpenRouter API) along with conversation history to generate accurate, cited answers.
-9. **Response Delivery**: Answers with sources, page previews, and confidence scores are displayed in the chat interface.
+1️⃣ Document Upload
+2️⃣ OCR & Text Extraction
+3️⃣ Sentence-Aware Chunking
+4️⃣ Embedding Generation
+5️⃣ FAISS Vector Storage
+6️⃣ Semantic Retrieval
+7️⃣ LLM Answer Generation
+8️⃣ Citation & Page Preview
+
+---
 
 ## Output
-#### Homepage
-<img width="1846" height="795" alt="Screenshot 2025-12-17 220400" src="https://github.com/user-attachments/assets/750b4620-da3d-41e3-ae81-5966fd1b6037" />
 
-#### Output1 - Document Upload and Processing Interface
+### Homepage
 
-<img width="1842" height="797" alt="Screenshot 2025-12-17 220539" src="https://github.com/user-attachments/assets/7dd87ca7-2816-43d4-9bee-94cd777d8928" />
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/750b4620-da3d-41e3-ae81-5966fd1b6037"/>
+</p>
 
-<img width="1859" height="864" alt="Screenshot 2025-12-17 220656" src="https://github.com/user-attachments/assets/42a91064-9144-46b5-a5ea-3c19ca72fb0c" />
+---
 
-#### Output2 - Question Answering Chat Interface
+### Output1 - Document Upload and Processing Interface
 
-<img width="1764" height="520" alt="Screenshot 2025-12-17 220810" src="https://github.com/user-attachments/assets/4468077c-3df7-4622-bbc2-ad497dd79330" />
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/7dd87ca7-2816-43d4-9bee-94cd777d8928"/>
+</p>
 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/42a91064-9144-46b5-a5ea-3c19ca72fb0c"/>
+</p>
 
-#### Output3 - Summary Generation Feature
+---
 
-<img width="1809" height="552" alt="Screenshot 2025-12-17 220822" src="https://github.com/user-attachments/assets/b1cc7b5e-8220-4c3b-99c5-0b3220042edd" />
+### Output2 - Question Answering Chat Interface
 
-**Performance Metrics:**
-- **Query Response Time**: Average 1-3 seconds (cached queries: <100ms)
-- **Embedding Generation Speed**: ~100 chunks/second
-- **Search Accuracy**: High precision with semantic similarity matching
-- **Citation Accuracy**: 100% accurate page references from source documents
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/4468077c-3df7-4622-bbc2-ad497dd79330"/>
+</p>
 
+---
+
+### Output3 - Summary Generation Feature
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/b1cc7b5e-8220-4c3b-99c5-0b3220042edd"/>
+</p>
+
+---
 
 ## Results and Impact
 
-BookVision RAG significantly enhances document accessibility and information retrieval efficiency for students, researchers, and professionals. The system transforms static documents into interactive knowledge bases, enabling users to extract insights quickly without manually reading through entire documents. The integration of semantic search with large language models ensures that answers are not only accurate but also contextually relevant, making it a powerful tool for academic research, technical documentation analysis, and knowledge management.
+<p align="center">
+  <img src="https://img.shields.io/badge/Impact-High%20Efficiency-brightgreen?style=for-the-badge"/>
+</p>
 
-The project demonstrates the practical application of modern AI technologies including transformer models, vector databases, and RAG architectures in solving real-world document understanding challenges. By providing transparent citations and page references, the system maintains accountability and allows users to verify information, addressing concerns about AI hallucination. The scalable architecture supports indexing of thousands of documents while maintaining fast query response times, making it suitable for both individual use and enterprise deployment.
+* 📚 Converts books into **interactive AI assistants**
+* 🔍 Eliminates manual document searching
+* 🧠 Reduces hallucination via citations
+* 🎓 Enhances learning and research efficiency
+* 🚀 Scalable for enterprise use
 
-This project serves as a foundation for future developments in intelligent document processing, automated knowledge extraction, and AI-assisted research tools. It contributes to the growing ecosystem of RAG-based applications that make complex information more accessible and actionable.
+---
 
+## 🚀 Performance Metrics
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Speed-Optimized-success"/>
+  <img src="https://img.shields.io/badge/Accuracy-High-blue"/>
+</p>
+
+* ⏱️ **Query Response Time**: 1–3 seconds
+* ⚡ **Cached Queries**: <100ms
+* 🎯 **Citation Accuracy**: 100%
+* 🔍 **High Semantic Precision**
+
+---
+
+## 🌟 Final Note
+
+✨ **BookVision RAG Chatbot** showcases a **production-grade RAG architecture** with real-world applicability in **education, research, and enterprise document intelligence**.
 

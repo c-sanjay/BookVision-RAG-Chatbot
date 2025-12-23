@@ -40,8 +40,7 @@ The system processes PDFs and images through OCR, extracts and chunks text intel
 
 ## System Architecture
 
-![System Architecture](https://via.placeholder.com/800x400?text=System+Architecture+Diagram)
-*Note: Replace with your actual system architecture diagram showing the flow from document upload → ingestion → embedding → vector store → query processing → LLM → response generation*
+<img width="1024" height="1024" alt="Gemini_Generated_Image_xkrquixkrquixkrq" src="https://github.com/user-attachments/assets/3a3aab4f-1000-4d76-9406-090ad48d1c85" />
 
 The system architecture follows a multi-stage pipeline:
 
@@ -56,18 +55,23 @@ The system architecture follows a multi-stage pipeline:
 9. **Response Delivery**: Answers with sources, page previews, and confidence scores are displayed in the chat interface.
 
 ## Output
+#### Homepage
+<img width="1846" height="795" alt="Screenshot 2025-12-17 220400" src="https://github.com/user-attachments/assets/750b4620-da3d-41e3-ae81-5966fd1b6037" />
 
 #### Output1 - Document Upload and Processing Interface
 
-![Upload Interface](https://via.placeholder.com/800x500?text=Document+Upload+Interface)
+<img width="1842" height="797" alt="Screenshot 2025-12-17 220539" src="https://github.com/user-attachments/assets/7dd87ca7-2816-43d4-9bee-94cd777d8928" />
+
+<img width="1859" height="864" alt="Screenshot 2025-12-17 220656" src="https://github.com/user-attachments/assets/42a91064-9144-46b5-a5ea-3c19ca72fb0c" />
 
 #### Output2 - Question Answering Chat Interface
 
-![Chat Interface](https://via.placeholder.com/800x500?text=Chat+Interface+with+Answers+and+Sources)
+<img width="1764" height="520" alt="Screenshot 2025-12-17 220810" src="https://github.com/user-attachments/assets/4468077c-3df7-4622-bbc2-ad497dd79330" />
+
 
 #### Output3 - Summary Generation Feature
 
-![Summary Generation](https://via.placeholder.com/800x500?text=Document+Summary+Generation)
+<img width="1809" height="552" alt="Screenshot 2025-12-17 220822" src="https://github.com/user-attachments/assets/b1cc7b5e-8220-4c3b-99c5-0b3220042edd" />
 
 **Performance Metrics:**
 - **Query Response Time**: Average 1-3 seconds (cached queries: <100ms)

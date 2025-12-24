@@ -102,12 +102,19 @@ This ensures **accuracy, explainability, and trust** in AI-generated responses.
 ### Processing Pipeline
 
 1️⃣ Document Upload
+
 2️⃣ OCR & Text Extraction
+
 3️⃣ Sentence-Aware Chunking
+
 4️⃣ Embedding Generation
+
 5️⃣ FAISS Vector Storage
+
 6️⃣ Semantic Retrieval
+
 7️⃣ LLM Answer Generation
+
 8️⃣ Citation & Page Preview
 
 ---

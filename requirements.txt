@@ -11,3 +11,6 @@ pytesseract>=0.3.10
 pymupdf>=1.23.0
 redis>=5.0.0
 aiofiles>=23.2.0
+python-multipart>=0.0.6
+sqlalchemy>=2.0.0
+alembic>=1.12.0

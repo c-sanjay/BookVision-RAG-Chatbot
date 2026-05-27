@@ -6,7 +6,7 @@ import hashlib
 from typing import Optional
 
 try:
-    import redis
+    import redis                                                                                      # type: ignore
     REDIS_AVAILABLE = True
 except ImportError:
     REDIS_AVAILABLE = False

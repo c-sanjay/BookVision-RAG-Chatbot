@@ -37,6 +37,35 @@ st.markdown("""
 st.title("📚 BookVision RAG Chatbot")
 st.caption("AI-Powered Document Understanding & Question Answering System")
 
+# Check backend connection
+def check_backend_connection():
+    """Check if backend server is running"""
+    try:
+        response = requests.get(f"{FASTAPI_URL}/health", timeout=2)
+        if response.status_code == 200:
+            return True, None
+        else:
+            return False, f"Backend returned status code {response.status_code}"
+    except requests.exceptions.ConnectionError:
+        return False, "Connection refused - backend server is not running"
+    except requests.exceptions.Timeout:
+        return False, "Connection timeout - backend server may be slow"
+    except Exception as e:
+        return False, f"Error connecting to backend: {str(e)}"
+
+backend_ok, backend_error = check_backend_connection()
+
+if not backend_ok:
+    st.error("⚠️ **Backend Server Not Running! Please Wait for few Seconds**")
+    st.error(f"**Error:** {backend_error}")
+    st.markdown("""
+    **Refresh this page** (F5) or the page will auto-refresh 
+    """)
+    
+    # Auto-refresh every 5 seconds to check if backend comes online
+    time.sleep(5)
+    st.rerun()
+
 # Initialize session state
 if "current_book_id" not in st.session_state:
     st.session_state.current_book_id = None
@@ -47,6 +76,16 @@ if "upload_tasks" not in st.session_state:
 
 # Sidebar for stats and settings
 with st.sidebar:
+    # Backend status indicator
+    st.header("🔌 Connection Status")
+    if backend_ok:
+        st.success("✅ Backend Connected")
+        st.caption(f"Server: {FASTAPI_URL}")
+    else:
+        st.error("❌ Backend Disconnected")
+        st.caption("Please start the backend server")
+    
+    st.markdown("---")
     st.header("📊 Statistics")
     try:
         stats_resp = requests.get(f"{FASTAPI_URL}/stats", timeout=5)
@@ -56,7 +95,10 @@ with st.sidebar:
             st.metric("Unique Books", stats.get("unique_books", 0))
         else:
             st.info("Stats unavailable")
-    except:
+    except requests.exceptions.ConnectionError:
+        st.warning("⚠️ Backend not connected")
+        st.caption("Start backend server to see stats")
+    except Exception as e:
         st.info("Stats unavailable")
     
     st.markdown("---")
@@ -81,7 +123,6 @@ st.header("📄 Upload Documents")
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("Upload PDF")
     pdf = st.file_uploader("Upload PDF", type=["pdf"], help="Upload a PDF file to index", key="pdf_uploader")
     if pdf:
         file_size_mb = len(pdf.read()) / (1024 * 1024)
@@ -123,7 +164,6 @@ with col1:
                     st.error(f"Upload failed: {e}")
 
 with col2:
-    st.subheader("Upload Image")
     img = st.file_uploader("Upload Image", type=["png", "jpg", "jpeg", "tiff", "bmp"], 
                           help="Upload an image file with text to index", key="img_uploader")
     if img:

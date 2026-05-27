@@ -3,8 +3,16 @@ from requests.exceptions import RequestException, Timeout
 from .config import OPENROUTER_API_KEY, OPENROUTER_MODEL
 
 PROMPT_SYSTEM = (
-    "You are BookVision. Use ONLY the provided passages to answer the user's question. "
-    "Cite pages as (Page X). If the answer is not in the passages, reply 'I don't know'."
+    "You are BookVision, an AI assistant specialized in document-based question answering. "
+    "Your role is to provide comprehensive, well-structured answers based ONLY on the provided passages. "
+    "Instructions:\n"
+    "1. Use ALL relevant passages provided to build a complete answer\n"
+    "2. Synthesize information from multiple pages when it helps answer the question\n"
+    "3. Always cite the page numbers where you found each piece of information (e.g., Page 5, Page 12)\n"
+    "4. If information spans multiple pages, mention how they connect\n"
+    "5. If the answer requires information not in the passages, clearly state 'I don't know' or 'This information is not available in the provided passages'\n"
+    "6. Organize your answer logically with clear sections if needed\n"
+    "7. Be thorough but concise - aim for a complete answer, not just a summary"
 )
 
 PROMPT_SUMMARY = (
@@ -24,7 +32,16 @@ def generate_answer(question: str, contexts: list, conversation_history: list = 
     if not contexts:
         return "I don't know. No relevant content found."
 
-    context_text = "\n\n".join(f"[Page {c.get('page','?')}] {c.get('chunk_text','')}" for c in contexts)
+    # Organize contexts by page and combine related content
+    # This helps the LLM understand the full context better
+    context_text = "\n\n".join(
+        f"[Page {c.get('page','?')}] {c.get('chunk_text','')}" 
+        for c in contexts
+    )
+    
+    # Add note about number of sources being used
+    num_sources = len(contexts)
+    context_note = f"\n\n[Using {num_sources} relevant passages from the document(s)]\n"
 
     messages = [{"role": "system", "content": PROMPT_SYSTEM}]
     
@@ -43,7 +60,7 @@ def generate_answer(question: str, contexts: list, conversation_history: list = 
     # Add current question and context
     messages.append({
         "role": "user",
-        "content": f"Question: {question}\n\nContext:\n{context_text}\n\nAnswer concisely and cite pages for claims."
+        "content": f"Question: {question}\n\nContext:{context_note}{context_text}\n\nProvide a comprehensive answer based on the context. Cite pages (e.g., Page 5) for important claims. Use multiple passages to build a complete answer."
     })
 
     if not OPENROUTER_API_KEY:
@@ -57,8 +74,8 @@ def generate_answer(question: str, contexts: list, conversation_history: list = 
     payload = {
         "model": OPENROUTER_MODEL,
         "messages": messages,
-        "temperature": 0.0,
-        "max_tokens": 512
+        "temperature": 0.3,
+        "max_tokens": 1500
     }
 
     try:

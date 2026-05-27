@@ -1,6 +1,6 @@
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTasks
-from fastapi.responses import JSONResponse, FileResponse
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTasks                                 # type: ignore
+from fastapi.responses import JSONResponse, FileResponse                                                            # type: ignore
+from fastapi.middleware.cors import CORSMiddleware                                                                  # type: ignore
 from pathlib import Path
 import shutil
 import logging
@@ -13,10 +13,18 @@ from .ingest import ingest_image, ingest_pdf
 from .embed_store import embed_store
 from .llm import generate_answer, generate_summary
 from .cache import cache
+from .database import init_db, SessionLocal, get_book_by_id, create_book, update_book_status, list_books
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Initialize database
+try:
+    init_db()
+    logger.info("Database initialized successfully")
+except Exception as e:
+    logger.error(f"Failed to initialize database: {e}")
 
 app = FastAPI(title="BookVision RAG API", version="2.0")
 
@@ -93,7 +101,14 @@ def _update_status(task_id: str, progress: int, message: str, status: str = "pro
 
 def _process_pdf_background(task_id: str, file_path: str, book_title: Optional[str]):
     """Background task to process PDF with progress updates"""
+    book_id = None
+    db = SessionLocal()
     try:
+        # Create book record in database
+        book_id = str(uuid.uuid4())
+        create_book(db, book_id, book_title or Path(file_path).stem, Path(file_path).name)
+        db.close()
+        
         # Update status: starting
         _update_status(task_id, 5, "Starting PDF processing...")
         
@@ -104,8 +119,14 @@ def _process_pdf_background(task_id: str, file_path: str, book_title: Optional[s
         book_id = ingest_pdf_with_progress(
             file_path, 
             book_title,
-            progress_callback=lambda p, m: _update_status(task_id, p, m)
+            progress_callback=lambda p, m: _update_status(task_id, p, m),
+            book_id=book_id
         )
+        
+        # Update database with completion status
+        db = SessionLocal()
+        update_book_status(db, book_id, "completed")
+        db.close()
         
         # Update status: completed
         _update_status(task_id, 100, "PDF indexed successfully", "completed", book_id=book_id)
@@ -120,6 +141,13 @@ def _process_pdf_background(task_id: str, file_path: str, book_title: Optional[s
             
     except Exception as e:
         logger.error(f"PDF processing error: {e}", exc_info=True)
+        
+        # Update database with error status
+        if book_id:
+            db = SessionLocal()
+            update_book_status(db, book_id, "error", error_msg=str(e))
+            db.close()
+        
         _update_status(task_id, 0, f"Error: {str(e)}", "error", error=str(e))
 
 
@@ -284,9 +312,10 @@ async def query(
             }
             return response
 
-        # Remove duplicate pages (keep best match per page)
+        # Process results without aggressive deduplication
+        # Allow multiple relevant chunks to build comprehensive context
         final_sources = []
-        seen = set()
+        page_count = {}  # Track chunks per page to allow multiple chunks
 
         for r in results:
             if not r or not isinstance(r, dict):
@@ -294,11 +323,6 @@ async def query(
                 
             r_book_id = r.get("book_id")
             page = r.get("page", 1)
-
-            key = (r_book_id, page)
-            if key in seen:
-                continue
-            seen.add(key)
 
             try:
                 final_sources.append({
@@ -313,11 +337,12 @@ async def query(
                 logger.warning(f"Error processing result: {e}")
                 continue
 
-        # Limit to top_k
-        final_sources = final_sources[:top_k]
+            # Stop if we have enough sources for comprehensive RAG
+            # Use 2x top_k to ensure sufficient context for LLM
+            if len(final_sources) >= top_k * 1.5:
+                break
 
         # Build context with conversation history if provided
-        context_with_history = final_sources[:3]
         parsed_history = None
         
         if conversation_history:
@@ -333,8 +358,10 @@ async def query(
                 logger.warning(f"Failed to parse conversation history: {e}")
                 parsed_history = None
 
-        # Best 3 for LLM context
-        answer_contexts = context_with_history
+        # Use all retrieved sources for comprehensive RAG context (up to top_k)
+        # This ensures the LLM has access to all relevant document content
+        answer_contexts = final_sources
+        logger.info(f"Passing {len(answer_contexts)} chunks to LLM for answer generation")
         answer = generate_answer(question, answer_contexts, parsed_history)
 
         response = {

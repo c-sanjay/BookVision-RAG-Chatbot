@@ -4,6 +4,10 @@ import numpy as np
 import json
 from pathlib import Path
 from .config import INDEX_DIR, EMBEDDING_MODEL, EMBED_DIM
+from .database import SessionLocal, Chunk, Book
+import logging
+
+logger = logging.getLogger(__name__)
 
 VEC_FILE = Path(INDEX_DIR) / "faiss.index"
 META_FILE = Path(INDEX_DIR) / "meta.json"
@@ -13,7 +17,7 @@ class EmbedStore:
         self.model = SentenceTransformer(model_name)
         self.dim = dim
         self.index = None
-        self.meta = []
+        self.meta = []  # Keep for backward compatibility
         self._load()
 
     def _load(self):
@@ -25,33 +29,46 @@ class EmbedStore:
                 # Create new FAISS index (Inner product for normalized vectors = cosine similarity)
                 self.index = faiss.IndexFlatIP(self.dim)
             
-            if META_FILE.exists():
-                with open(META_FILE, "r", encoding="utf-8") as f:
-                    self.meta = json.load(f)
-            
-            # Ensure metadata length matches index size
-            if self.index and self.index.ntotal > len(self.meta):
-                # Pad metadata if needed
-                while len(self.meta) < self.index.ntotal:
-                    self.meta.append({})
-            elif self.index and self.index.ntotal < len(self.meta):
-                # Trim metadata if index is smaller
-                self.meta = self.meta[:self.index.ntotal]
+            # Load metadata from database
+            self._load_metadata_from_db()
                 
         except Exception as e:
-            print(f"EmbedStore load error: {e}")
+            logger.error(f"EmbedStore load error: {e}")
             self.index = faiss.IndexFlatIP(self.dim)
             self.meta = []
 
+    def _load_metadata_from_db(self):
+        """Load metadata from database instead of JSON"""
+        try:
+            db = SessionLocal()
+            chunks = db.query(Chunk).all()
+            self.meta = []
+            
+            for chunk in chunks:
+                meta = {
+                    "book_id": chunk.book_id,
+                    "book_title": chunk.book.title if chunk.book else "Unknown",
+                    "page": chunk.page,
+                    "chunk_text": chunk.chunk_text,
+                    "source": chunk.book.filename if chunk.book else "Unknown",
+                    "embedding_id": chunk.embedding_id
+                }
+                self.meta.append(meta)
+            
+            db.close()
+            logger.info(f"Loaded {len(self.meta)} chunks from database")
+        except Exception as e:
+            logger.warning(f"Failed to load metadata from DB: {e}. Using empty metadata.")
+            self.meta = []
+
     def _save(self):
-        """Save FAISS index and metadata to disk"""
+        """Save FAISS index to disk (metadata saved via database)"""
         try:
             if self.index and self.index.ntotal > 0:
                 faiss.write_index(self.index, str(VEC_FILE))
-            with open(META_FILE, "w", encoding="utf-8") as f:
-                json.dump(self.meta, f, ensure_ascii=False, indent=2)
+                logger.info(f"FAISS index saved with {self.index.ntotal} vectors")
         except Exception as e:
-            print(f"EmbedStore save error: {e}")
+            logger.error(f"EmbedStore save error: {e}")
 
     def _normalize(self, vec: np.ndarray) -> np.ndarray:
         """Normalize vector to unit length for cosine similarity"""
@@ -142,18 +159,53 @@ class EmbedStore:
         if self.index is None:
             self.index = faiss.IndexFlatIP(self.dim)
         
+        # Get starting embedding ID based on current index size
+        start_embedding_id = self.index.ntotal
         self.index.add(embeddings)
         
-        # Store metadata (optimized - use enumerate to match chunks)
-        for i, meta in enumerate(valid_metadata):
-            md = meta.copy()
-            md["chunk_text"] = valid_chunks[i]  # Match by index
-            self.meta.append(md)
-        
-        if progress_callback:
-            progress_callback(90, "Saving index...")
-        
-        self._save()
+        # Store metadata and create chunk records in database
+        db = SessionLocal()
+        try:
+            book_id = valid_metadata[0].get("book_id") if valid_metadata else None
+            
+            # Bulk insert chunks into database
+            chunk_objects = []
+            for i, meta in enumerate(valid_metadata):
+                chunk_obj = Chunk(
+                    book_id=meta.get("book_id"),
+                    page=meta.get("page", 1),
+                    chunk_text=valid_chunks[i],
+                    embedding_id=start_embedding_id + i
+                )
+                chunk_objects.append(chunk_obj)
+                
+                # Also add to in-memory meta for backward compatibility
+                md = meta.copy()
+                md["chunk_text"] = valid_chunks[i]
+                self.meta.append(md)
+            
+            # Bulk insert
+            db.bulk_save_objects(chunk_objects)
+            db.commit()
+            
+            # Update book chunk count
+            if book_id:
+                from .database import get_book_by_id
+                book = get_book_by_id(db, book_id)
+                if book:
+                    book.chunk_count = len(valid_chunks)
+                    db.commit()
+            
+            if progress_callback:
+                progress_callback(90, "Saving index...")
+            
+            self._save()
+            
+        except Exception as e:
+            logger.error(f"Error saving chunks to database: {e}")
+            db.rollback()
+        finally:
+            db.close()
 
     def search(self, query: str, top_k: int = 6):
         """Search for similar chunks"""

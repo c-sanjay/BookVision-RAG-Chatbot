@@ -7,7 +7,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-FASTAPI_URL = "http://127.0.0.1:8000"
+FASTAPI_URL = "https://bookvision-api.onrender.com"
 
 st.set_page_config(page_title="BookVision RAG", layout="wide", initial_sidebar_state="expanded")
 
